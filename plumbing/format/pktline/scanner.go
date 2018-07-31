@@ -86,9 +86,9 @@ func (s *Scanner) Bytes() []byte {
 func (s *Scanner) readPayloadLen() (int, error) {
 	fmt.Println("in read payload len")
 	if _, err := io.ReadFull(s.r, s.len[:]); err != nil {
-		fmt.Printf("in read payload len: read full had an error %v\n" err)
+		fmt.Printf("in read payload len: read full had an error %v\n", err)
 		if err == io.ErrUnexpectedEOF {
-		fmt.Println("in read payload len: err was err unexpected. returning err invalid pkt len")
+			fmt.Println("in read payload len: err was err unexpected. returning err invalid pkt len")
 			return 0, ErrInvalidPktLen
 		}
 
