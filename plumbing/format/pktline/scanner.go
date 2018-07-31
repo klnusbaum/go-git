@@ -2,6 +2,7 @@ package pktline
 
 import (
 	"errors"
+	"fmt"
 	"io"
 )
 
@@ -49,11 +50,14 @@ func (s *Scanner) Err() error {
 func (s *Scanner) Scan() bool {
 	var l int
 	l, s.err = s.readPayloadLen()
+	fmt.Printf("Did readPayloadLen, got error %v\n", s.err)
 	if s.err == io.EOF {
+		fmt.Printf("After readPayloadLen, we definitely got an error and it was EOF\n", s.err)
 		s.err = nil
 		return false
 	}
 	if s.err != nil {
+		fmt.Printf("After readPayloadLen, we definitely got nonEOF error\n", s.err)
 		return false
 	}
 
@@ -62,6 +66,7 @@ func (s *Scanner) Scan() bool {
 	}
 
 	if _, s.err = io.ReadFull(s.r, s.payload[:l]); s.err != nil {
+		fmt.Printf("Did a read full and the error was %v\n", s.err)
 		return false
 	}
 	s.payload = s.payload[:l]
@@ -79,13 +84,18 @@ func (s *Scanner) Bytes() []byte {
 // Method readPayloadLen returns the payload length by reading the
 // pkt-len and subtracting the pkt-len size.
 func (s *Scanner) readPayloadLen() (int, error) {
+	fmt.Println("in read payload len")
 	if _, err := io.ReadFull(s.r, s.len[:]); err != nil {
+		fmt.Printf("in read payload len: read full had an error %v\n" err)
 		if err == io.ErrUnexpectedEOF {
+		fmt.Println("in read payload len: err was err unexpected. returning err invalid pkt len")
 			return 0, ErrInvalidPktLen
 		}
 
 		return 0, err
 	}
+
+	fmt.Printf("In readPayloadlen, with s.len %v\n", s.len)
 
 	n, err := hexDecode(s.len)
 	if err != nil {
